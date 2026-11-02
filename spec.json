@@ -1,0 +1,53 @@
+{
+  "platform": {
+    "name": "acme",
+    "awsRegion": "eu-west-1",
+    "awsAccountId": "111122223333",
+    "oidcProvider": "oidc.eks.eu-west-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B716D3041E"
+  },
+  "services": [
+    {
+      "name": "orders-api",
+      "type": "api",
+      "image": "acme/orders-api:1.4.0",
+      "replicas": 2,
+      "port": 8080,
+      "env": {
+        "LOG_LEVEL": "info",
+        "ORDERS_TABLE": "orders"
+      },
+      "resources": [
+        {
+          "type": "dynamodb",
+          "name": "orders",
+          "hashKey": "orderId",
+          "access": "readwrite"
+        },
+        {
+          "type": "dynamodb",
+          "name": "order-events",
+          "hashKey": "eventId",
+          "access": "read"
+        }
+      ]
+    },
+    {
+      "name": "notifications-worker",
+      "type": "worker",
+      "image": "acme/notifications-worker:0.9.2",
+      "replicas": 1,
+      "env": {
+        "LOG_LEVEL": "info",
+        "NOTIFICATIONS_TABLE": "notifications"
+      },
+      "resources": [
+        {
+          "type": "dynamodb",
+          "name": "notifications",
+          "hashKey": "notificationId",
+          "access": "readwrite"
+        }
+      ]
+    }
+  ]
+}

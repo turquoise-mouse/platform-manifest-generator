@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: notifications-worker
+  namespace: default
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::111122223333:role/notifications-worker
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications-worker
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifications-worker
+  template:
+    metadata:
+      labels:
+        app: notifications-worker
+    spec:
+      serviceAccountName: notifications-worker
+      containers:
+      - name: notifications-worker
+        image: acme/notifications-worker:0.9.2
+        env:
+        - name: LOG_LEVEL
+          value: info
+        - name: NOTIFICATIONS_TABLE
+          value: notifications
